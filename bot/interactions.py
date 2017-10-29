@@ -9,7 +9,7 @@ import requests
 from django.conf import settings
 PAGE_ACCESS_TOKEN = settings.PAGE_ACCESS_TOKEN
 VERIFY_TOKEN = settings.VERIFY_TOKEN
-from .models import ItemCategory, PendingOrder
+from .models import ItemCategory, PendingOrder, Item
 
 def get_message_type(message):
 
@@ -90,11 +90,65 @@ def send_menu(recipient_id, cat_id):
                   }
     deliver(recipient_id, attachment)
 
-def take_order(recipient_id):
-    customer = get_user_details(recipient_id)
-    order = PendingOrder(customer_id=recipient_id, customer_name=customer['first_name']+customer["last_name"], address="take_now")
+def send_receipt(recipient_id, order_id):
+
+    send_message(recipient_id, "Thank you, your order id is: {}. You'll receive a confirmatory mail soon".format(order_id))
+    order = PendingOrder.objects.get(id =order_id)
+    order.recipt_provided = True
     order.save()
-    send_message(recipient_id, "Please provide your address")
+
+
+
+
+
+
+def take_info(recipient_id, message):
+    order = PendingOrder.objects.get(customer_id=recipient_id, is_delivered=False, is_confirmed=False, recipt_provided=False)
+
+    if order.address == "take_address":
+        print("Taking address", message)
+        order.address = message
+        order.phone = "take_phone"
+        order.save()
+        send_message(recipient_id, "Please provide Phone")
+
+    # elif order.address == "NS":
+    #     print("Taking address else", message)
+    #     order.address = "take_address"
+    #     send_message(recipient_id, "Please provide your address")
+    else:
+        if order.phone == "take_phone":
+            order.phone = message
+            order.email = "take_email"
+            order.save()
+            send_message(recipient_id, "Please provide your email")
+        elif order.email == "take_email":
+            order.email = message
+            order.bkash_transaction_no = "take_bkash"
+            order.save()
+
+            item_id = order.cart['item']
+            price = Item.objects.get(id=int(item_id)).price + 40
+            send_message(recipient_id, "Please pay {} taka and provide bkash transaction number".format(price))
+        elif order.bkash_transaction_no == "take_bkash":
+            order.bkash_transaction_no=message
+            order.save()
+            send_receipt(recipient_id, order.id)
+            #send_message(recipient_id, "recieve the receipt")
+
+
+def take_order(recipient_id, id):
+    customer = get_user_details(recipient_id)
+    order, created = PendingOrder.objects.get_or_create(customer_id=recipient_id, customer_name=customer['first_name']+customer["last_name"], is_delivered=False, recipt_provided=False)
+    order.cart = {'item':id}
+    if order.address == "NS":
+        order.address = "take_address"
+        order.save()
+        send_message(recipient_id, "Please provide your address")
+    else:
+        send_message(recipient_id, "sorry in taking order")
+
+
 
 def start_conversation(recipient_id):
     user_info = get_user_details(recipient_id)

@@ -57,6 +57,8 @@ class BotView(generic.View):
 
                         if message_text == 'start':
                             start_conversation(sender_id)
+                        elif PendingOrder.objects.filter(customer_id=sender_id, is_delivered=False, is_confirmed=False, recipt_provided=False).exists():
+                            take_info(sender_id, message_text)
                         else:
                             send_message(sender_id, "Sorry!")
                     else:
@@ -67,8 +69,10 @@ class BotView(generic.View):
                     payload, id = message['postback']['payload'].split('.')
                     pprint(message)
                     if payload=="item":
-                        take_order(sender_id)
+                        take_order(sender_id, id)
+                    else:
+                        pass
 
-                    send_message(sender_id, "{}#{}".format(payload, id))
+                    #send_message(sender_id, "{}#{}".format(payload, id))
 
         return HttpResponse()

@@ -40,10 +40,11 @@ class PendingOrder(models.Model):
     is_delivered = models.BooleanField(default=False)
     order_date = models.DateField(auto_now_add=True)
     order_time = models.TimeField(auto_now_add=True)
-    cart = JSONField()
+    recipt_provided = models.BooleanField(default=False)
+    cart = JSONField(null=True, blank=True)
 
     def __str__(self):
-        return self.customer_names + str(self.pk)
+        return self.customer_name + str(self.pk)
 
 
 
