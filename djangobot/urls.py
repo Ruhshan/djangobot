@@ -21,5 +21,3 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^bot/', include('bot.urls')),
 ]
-
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
