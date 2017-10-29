@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import dj_database_url
+from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -78,14 +80,22 @@ WSGI_APPLICATION = 'djangobot.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
+try:
+    SECRET_KEY = config('SECRET_KEY')
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'bot_db',
-        'USER': 'postgres',
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=config('DATABASE_URL')
+        )
     }
-}
+except:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'bot_db',
+            'USER': 'postgres',
+        }
+    }
 
 
 # Password validation
@@ -126,6 +136,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 
 PAGE_ACCESS_TOKEN = "EAAE7ZBCZBZCAOsBAJGP5N46W4EaPztF0KlwUURTDIFAwZCZA1lZAKN96ZCWCa31Yhu2V9Nfo6tZBsPw5yFpws0VlO03YJmeC5RZB2xZC9AjflFGAaCRfA0EK4ZCalEzBIP9BdUgHfFWTv4YveVMuySRgcotr2mQjZAEMMu9ziNN7iCPS1gZDZD"
 VERIFY_TOKEN = "IAmGroot"
+
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
