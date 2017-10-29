@@ -18,7 +18,7 @@ from decouple import config
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = os.path.join(PROJECT_ROOT, "staticfiles")
 MEDIA_URL = "/static_media/"
 
 # Quick-start development settings - unsuitable for production
@@ -138,7 +138,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(PROJECT_ROOT, 'static'),
 )
 
 PAGE_ACCESS_TOKEN = "EAAE7ZBCZBZCAOsBAJGP5N46W4EaPztF0KlwUURTDIFAwZCZA1lZAKN96ZCWCa31Yhu2V9Nfo6tZBsPw5yFpws0VlO03YJmeC5RZB2xZC9AjflFGAaCRfA0EK4ZCalEzBIP9BdUgHfFWTv4YveVMuySRgcotr2mQjZAEMMu9ziNN7iCPS1gZDZD"
