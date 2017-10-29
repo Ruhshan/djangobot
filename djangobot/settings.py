@@ -140,7 +140,7 @@ VERIFY_TOKEN = "IAmGroot"
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-LOGIN_REDIRECT_URL = '/'
+
 
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, "static"),
