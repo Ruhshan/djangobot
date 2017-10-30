@@ -2,6 +2,7 @@ import os
 import sys
 import json
 from datetime import datetime
+import smtplib
 from pprint import pprint
 
 import requests
@@ -9,7 +10,7 @@ import requests
 from django.conf import settings
 PAGE_ACCESS_TOKEN = settings.PAGE_ACCESS_TOKEN
 VERIFY_TOKEN = settings.VERIFY_TOKEN
-from .models import ItemCategory, PendingOrder, Item
+from .models import ItemCategory, PendingOrder, Item, SubCategory
 
 def get_message_type(message):
 
@@ -42,10 +43,23 @@ def deliver(recipient_id, message):
         },
         "message": message
     })
+    print("delivering", message)
     r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
     if r.status_code != 200:
         log(r.status_code)
         log(r.text)
+
+def send_sub_cat(recipient_id, cat_id):
+    quick_replies = []
+    for scat in ItemCategory.objects.get(id=int(cat_id)).subcategory_set.all():
+        reply = {"content_type" : "text", "title": scat.name, "payload": scat.payload_code}
+        quick_replies.append(reply)
+
+    category = {
+        "text": "Select Sub Category Please:",
+        "quick_replies": quick_replies
+        }
+    deliver(recipient_id,category)
 
 def send_category(recipient_id):
     quick_replies = []
@@ -54,13 +68,14 @@ def send_category(recipient_id):
         quick_replies.append(reply)
 
     category = {
-        "text" : "I Have these options for you today:",
+        "text": "I Have these options for you today:",
         "quick_replies": quick_replies
         }
     deliver(recipient_id,category)
 
-def send_menu(recipient_id, cat_id):
-    items = ItemCategory.objects.get(id=int(cat_id)).item_set.all()
+def send_menu(recipient_id, sub_cat_id):
+
+    items = SubCategory.objects.get(id=int(sub_cat_id)).item_set.all()
     elements=[]
     for item in items:
         element = {
@@ -96,10 +111,11 @@ def send_receipt(recipient_id, order_id):
     order = PendingOrder.objects.get(id =order_id)
     order.recipt_provided = True
     order.save()
-
-
-
-
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login("temp1992p@gmail.com", "temp123123")
+    server.sendmail("temp1992p@gmail.com", order.email, "Hi , Thanks for your order")
+    server.close()
 
 
 def take_info(recipient_id, message):
@@ -129,7 +145,7 @@ def take_info(recipient_id, message):
 
             item_id = order.cart['item']
             price = Item.objects.get(id=int(item_id)).price + 40
-            send_message(recipient_id, "Please pay {} taka and provide bkash transaction number".format(price))
+            send_message(recipient_id, "Please pay {}(Price + Delivery) taka through bkash and provide transaction number".format(price))
         elif order.bkash_transaction_no == "take_bkash":
             order.bkash_transaction_no=message
             order.save()
@@ -152,7 +168,7 @@ def take_order(recipient_id, id):
 
 def start_conversation(recipient_id):
     user_info = get_user_details(recipient_id)
-    send_message(recipient_id, "Hi %s, It's wonderful to see you today!" % user_info['first_name'])
+    send_message(recipient_id, "Hi %s, It's wonderful to see you!" % user_info['first_name'])
     send_category(recipient_id)
 
 

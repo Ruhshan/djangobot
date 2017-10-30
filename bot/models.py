@@ -8,22 +8,26 @@ class ItemCategory(models.Model):
     name = models.CharField(max_length=127, verbose_name="Category Name")
     payload_code = models.CharField(max_length=127, editable=False)
 
+    def __str__(self):
+        return self.name
+
+
+class SubCategory(models.Model):
+    category = models.ForeignKey(ItemCategory, verbose_name="Parent Category")
+    name = models.CharField(max_length=127, verbose_name="Sub Category Name")
+    payload_code = models.CharField(max_length=127, editable=False)
 
     def __str__(self):
         return self.name
 
+
+
 class Item(models.Model):
-    category = models.ForeignKey(ItemCategory, verbose_name="Item Category")
+    category = models.ForeignKey(SubCategory, verbose_name="Item Category")
     name = models.CharField(max_length=127, verbose_name="Item Name")
     price = models.DecimalField(verbose_name="Unit Price", decimal_places=3, max_digits=8)
     image = models.CharField(max_length=127, verbose_name="Item Image")
     postback_code = models.CharField(max_length=127, editable=False)
-
-    def save(self, *args, **kwargs):
-        self.postback_code = 'item.'+str(self.pk)
-        super(Item, self).save(*args, **kwargs)
-
-
 
     def __str__(self):
         return self.name
@@ -47,15 +51,26 @@ class PendingOrder(models.Model):
         return self.customer_name + str(self.pk)
 
 
-
 @receiver(post_save, sender=ItemCategory)
 def assign_payload(sender, instance, created,**kwargs):
+    print("assigning payload in category")
     if created:
         instance.payload_code = "cat."+str(instance.pk)
         instance.save()
 
+
+@receiver(post_save, sender=SubCategory)
+def assign_payload_sub(sender, instance, created,**kwargs):
+    print("Assigning payload in sub category")
+    if created:
+        instance.payload_code = "subcat."+str(instance.pk)
+        instance.save()
+
+
 @receiver(post_save, sender=Item)
 def assign_postback(sender, instance, created,**kwargs):
+    print("assigning postback in items")
     if created:
         instance.postback_code = "itm."+str(instance.pk)
         instance.save()
+

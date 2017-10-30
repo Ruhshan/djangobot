@@ -145,5 +145,5 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "djangobot/static"),
 ]
 
-print("PROTT is", STATICFILES_DIRS)
+
 #STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'

@@ -44,11 +44,16 @@ class BotView(generic.View):
 
                     if message_type == 'quick_reply':
                         payload, id = message['message']['quick_reply']['payload'].split('.')
+
                         if payload == "cat":
                             #send_message(sender_id, 'Thanks for quick reply {}# {}'.format(payload, id))
+                            send_sub_cat(sender_id, id)
+                        elif payload == "subcat":
                             send_menu(sender_id, id)
                         else:
                             send_message(sender_id, "un recognized category")
+
+
 
                     elif message_type == 'simple_message':
 
@@ -68,7 +73,7 @@ class BotView(generic.View):
                     recipient_id = message["recipient"]["id"]
                     payload, id = message['postback']['payload'].split('.')
                     pprint(message)
-                    if payload=="item":
+                    if payload=="itm":
                         take_order(sender_id, id)
                     else:
                         pass
