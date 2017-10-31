@@ -41,6 +41,7 @@ class BotView(generic.View):
                     pprint(message)
 
                     message_type=get_message_type(message)
+                    print("message type is", message_type)
 
                     if message_type == 'quick_reply':
                         payload, id = message['message']['quick_reply']['payload'].split('.')
@@ -51,9 +52,7 @@ class BotView(generic.View):
                         elif payload == "subcat":
                             send_menu(sender_id, id)
                         else:
-                            send_message(sender_id, "un recognized category")
-
-
+                            send_message(sender_id, "send 'start' to start chatting")
 
                     elif message_type == 'simple_message':
 
@@ -65,9 +64,9 @@ class BotView(generic.View):
                         elif PendingOrder.objects.filter(customer_id=sender_id, is_delivered=False, is_confirmed=False, recipt_provided=False).exists():
                             take_info(sender_id, message_text)
                         else:
-                            send_message(sender_id, "Sorry!")
+                            send_message(sender_id, "send 'start' to start chatting")
                     else:
-                        send_message(sender_id, "Unable to understand message type")
+                        send_message(sender_id, "send 'start' to start chatting")
                 if "postback" in message:
                     sender_id = message["sender"]["id"]
                     recipient_id = message["recipient"]["id"]

@@ -16,6 +16,8 @@ def get_message_type(message):
 
     if 'quick_reply' in message['message'].keys():
         return 'quick_reply'
+    elif 'attachments' in message['message'].keys():
+        return 'attachment'
     else:
         return 'simple_message'
 
@@ -111,11 +113,14 @@ def send_receipt(recipient_id, order_id):
     order = PendingOrder.objects.get(id =order_id)
     order.recipt_provided = True
     order.save()
-    server = smtplib.SMTP("smtp.gmail.com", 587)
-    server.starttls()
-    server.login("temp1992p@gmail.com", "temp123123")
-    server.sendmail("temp1992p@gmail.com", order.email, "Hi , Thanks for your order")
-    server.close()
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login("temp1992p@gmail.com", "temp123123")
+        server.sendmail("temp1992p@gmail.com", order.email, "Hi , Thanks for your order")
+        server.close()
+    except:
+        print("Mail not sent to", order.email)
 
 
 def take_info(recipient_id, message):
